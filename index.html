@@ -4,7 +4,6 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>FASTAID Ambulance Booking</title>
-  <!-- Replace YOUR_API_KEY with your actual API key -->
   <script src="https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY&callback=initMap" async defer></script>
   <style>
     body {
@@ -95,6 +94,15 @@
       margin-top: 15px;
       border: 1px solid #ffccbc;
     }
+
+    #locationError {
+      color: #c62828;
+      background: #ffebee;
+      padding: 10px;
+      border-radius: 8px;
+      margin-top: 10px;
+      display: none;
+    }
   </style>
 </head>
 <body>
@@ -155,6 +163,7 @@
   </div>
 
   <div id="map"></div>
+  <div id="locationError"></div>
 </section>
 
 <script>
@@ -217,7 +226,7 @@
   }
 
   function initMap() {
-    const defaultLocation = { lat: 25.41980177060349,  lng:68.24207144216992 }; // Hyderabad
+    const defaultLocation = { lat: 25.4198, lng: 68.2421 }; // Hyderabad
     map = new google.maps.Map(document.getElementById("map"), {
       zoom: 14,
       center: defaultLocation,
@@ -237,6 +246,7 @@
     if (navigator.geolocation) {
       navigator.geolocation.watchPosition(
         (position) => {
+          document.getElementById("locationError").style.display = "none";
           const pos = {
             lat: position.coords.latitude,
             lng: position.coords.longitude
@@ -244,8 +254,9 @@
           userMarker.setPosition(pos);
           map.setCenter(pos);
         },
-        () => {
-          alert("Error: Unable to access location.");
+        (error) => {
+          document.getElementById("locationError").style.display = "block";
+          console.warn("Geolocation error:", error.message);
         },
         {
           enableHighAccuracy: true,
@@ -254,7 +265,7 @@
         }
       );
     } else {
-      alert("Geolocation is not supported by this browser.");
+      document.getElementById("locationError").style.display = "block";
     }
   }
 
